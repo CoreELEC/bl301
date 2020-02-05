@@ -32,6 +32,8 @@ Description:
 #define CEC_WAKEUP		8
 #define	REMOTE_CUS_WAKEUP		9
 #define ETH_PHY_WAKEUP      10
+#define ETH_PHY_GPIO		11
+#define GPIO_WAKEUP		12
 
 /* wake up source*/
 #define UDEFINED_WAKEUP_SRC	(1<<0)
@@ -44,6 +46,8 @@ Description:
 #define AUTO_WAKEUP_SRC	(1<<7)
 #define CEC_WAKEUP_SRC	(1<<8)
 #define ETH_PHY_WAKEUP_SRC (1<<9)
+#define ETH_PHY_GPIO_SRC   (1<<10)
+#define GPIO_WAKEUP_SRC    (1<<11)
 
 struct pwr_op {
 	void (*power_off_at_clk81)(void);
@@ -54,6 +58,8 @@ struct pwr_op {
 
 	void (*power_off_at_32k)(void);
 	void (*power_on_at_32k)(void);
+
+	void (*power_off_at_mcu)(unsigned int);
 
 	void (*shut_down)(void);
 

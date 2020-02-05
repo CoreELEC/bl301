@@ -217,6 +217,9 @@ typedef unsigned int uint32_t;
 #define ONE_TOUCH_PLAY_MASK                  1
 #define ONE_TOUCH_STANDBY_MASK               2
 #define AUTO_POWER_ON_MASK                   3
+#define STREAMPATH_POWER_ON_MASK             4
+#define CEC_INPUT_MASK                       5
+#define ACTIVE_SOURCE_MASK                   6
 
 //#define P_HHI_GCLK_MPEG2 CBUS_REG_ADDR(HHI_GCLK_MPEG2)
 //#define P_HHI_HDMI_CLK_CNTL CBUS_REG_ADDR(HHI_HDMI_CLK_CNTL)
@@ -288,7 +291,7 @@ void cec_wr_reg(unsigned long addr, unsigned long data);
 unsigned long cec_rd_reg(unsigned long addr);
 void cec_arbit_bit_time_set(unsigned bit_set, unsigned time_set);
 //void cec_give_device_power_status(void);
-void cec_inactive_source(void);
+void cec_inactive_source(int dst);
 void cec_set_standby(void);
 
 extern void udelay(int i);

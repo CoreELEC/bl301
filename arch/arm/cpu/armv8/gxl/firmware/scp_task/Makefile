@@ -38,6 +38,7 @@ CFLAGS_INCLUDE=-I$(buildsrc)/build/include/ \
 
 #VPATH_LIST=     $(buildsrc)/board/$(BOARDDIR)
 VPATH_LIST=     $(buildsrc)/$(BOARDDIR)
+VPATH_LIST:=    $(VPATH_LIST) $(buildsrc)/board/generic/gxl_generic
 
 VPATH_LIST:=$(VPATH_LIST:%=%/firmware/scp_task/)
 
@@ -70,7 +71,16 @@ OBJS := $(OBJS:%=$(obj)/%)
 
 .NOTPARALLEL : all
 
-all : clean $(obj)/bl301.out $(obj)/bl301.bin
+all : clean generate-hash $(obj)/bl301.out $(obj)/bl301.bin
+
+generate-hash:
+	$(Q)rm -rf coreelec_config.h
+	$(Q)cat coreelec_config.c | \
+		awk -F'[(),]' '/.config_id\s*=\s*HASH/ {printf("%s\n", $$2)}' | \
+		while read str; do echo -n $$str | python -c 'import sys; import zlib; \
+		str=sys.stdin.read(); \
+		print("#define HASHSTR_%s 0x%08x" % (str,zlib.crc32(str)%(1<<32)))' \
+		>> coreelec_config.h; done
 
 $(obj)/bl301.bin: $(obj)/bl301.out
 	@echo "	OBJCOPY $@"

@@ -1,3 +1,6 @@
+config GENERIC_GX
+	bool "Support Generic gxl board"
+	default n
 
 config GENERIC_G12B
 	bool "Support Generic g12b board"
@@ -14,6 +17,10 @@ config KHADAS_VIM3
 config KHADAS_VIM3L
 	bool "Support Khadas VIM3L board"
 	default n
+
+if GENERIC_GX
+source "board/generic/gxl/Kconfig"
+endif
 
 if GENERIC_G12B
 source "board/generic/g12b/Kconfig"

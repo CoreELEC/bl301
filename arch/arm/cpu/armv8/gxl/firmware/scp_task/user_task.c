@@ -72,7 +72,7 @@ void secure_task(void)
 
 	/*init bss */
 	bss_init();
-	dbg_prints("secure task start!\n");
+	dbg_prints("CoreELEC secure task start!\n");
 
 	/* suspend pwr ops init*/
 	suspend_pwr_ops_init();
@@ -82,7 +82,7 @@ void secure_task(void)
 		/* do secure task process */
 		command = *pcommand;
 		if (command) {
-			dbg_print("process command ", command);
+			dbg_print("CoreELEC: process command ", command);
 			if (command == SEC_TASK_GET_WAKEUP_SRC) {
 				state = *(pcommand+1);
 				suspend_get_wakeup_source(
@@ -124,7 +124,7 @@ void high_task(void)
 	    (unsigned *)(&(high_task_share_mem[TASK_RESPONSE_OFFSET]));
 	unsigned command;
 
-	dbg_prints("high task start!\n");
+	dbg_prints("CoreELEC high task start!\n");
 	*pcommand = 0;
 
 	while (1) {
@@ -140,7 +140,6 @@ void high_task(void)
 	}
 }
 
-extern unsigned int usr_pwr_key;
 void process_low_task(unsigned command)
 {
 	unsigned *pcommand =
@@ -153,11 +152,13 @@ void process_low_task(unsigned command)
 		para1 = *(pcommand + 1);
 		get_dvfs_info(para1,
 			(unsigned char *)(response+2), (response+1));
+#if 0
 	} else if ((command & 0xffff) == LOW_TASK_USR_DATA) {/*0-15bit: comd; 16-31bit: client_id*/
 		if ((command >> 16) == SCPI_CL_REMOTE) {
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
 			dbg_print("pwr_key=",usr_pwr_key);
 		}
+#endif
 	}
 }
 
@@ -170,7 +171,7 @@ void low_task(void)
 	unsigned command;
 
 	*pcommand = 0;
-	dbg_prints("low task start!\n");
+	dbg_prints("CoreELEC low task start!\n");
 
 	while (1) {
 		/* do low task process */

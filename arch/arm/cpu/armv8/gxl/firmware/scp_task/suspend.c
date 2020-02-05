@@ -25,6 +25,7 @@ Description:
 unsigned int time;
 #include <scp_remote.c>
 
+#include <coreelec_config.c>
 #include <pwr_ctrl.c>
 #include <hdmi_cec_arc.c>
 
@@ -90,24 +91,54 @@ void enter_suspend(unsigned int suspend_from)
 {
 	int exit_reason = UDEFINED_WAKEUP;
 #ifdef CONFIG_CEC_WAKEUP
-	hdmi_cec_func_config = readl(P_AO_DEBUG_REG0);
+	hdmi_cec_func_config = readl(P_AO_DEBUG_REG0) & 0xff;
 	uart_puts("CEC cfg:0x");
 	uart_put_hex(hdmi_cec_func_config, 16);
 	uart_puts("\n");
 #endif
-	p_pwr_op->power_off_at_clk81();
-	p_pwr_op->power_off_at_24M();
+
+#ifdef CONFIG_GPIO_WAKEUP
+	gpio_wakeup_keyno = ((readl(P_AO_DEBUG_REG0) & 0x0fff0000) >> 16);
+	gpio_wakeup_bank  = ((readl(P_AO_DEBUG_REG0) & 0xf0000000) >> 28);
+	wait_uart_empty();
+	uart_puts("WAKEUP GPIO cfg: 0x");
+	uart_put_hex(gpio_wakeup_keyno, 16);
+	uart_puts(", bank: 0x");
+	uart_put_hex(gpio_wakeup_bank, 8);
+	uart_puts("\n");
+	wait_uart_empty();
+#endif
+
+	if (p_pwr_op->power_off_at_clk81)
+		p_pwr_op->power_off_at_clk81();
+
+	if (p_pwr_op->power_off_at_24M)
+		p_pwr_op->power_off_at_24M();
 
 	gxbb_com_gate_off();
-	p_pwr_op->power_off_at_32k();
+	if (p_pwr_op->power_off_at_32k)
+		p_pwr_op->power_off_at_32k();
+
+	if (p_pwr_op->power_off_at_mcu)
+		p_pwr_op->power_off_at_mcu(suspend_from);
+
 	exit_reason = p_pwr_op->detect_key(suspend_from);
-	p_pwr_op->power_on_at_32k();
+
+	if (p_pwr_op->power_on_at_32k)
+		p_pwr_op->power_on_at_32k();
+
 	gxbb_com_gate_on();
+
 	uart_puts("exit_reason:0x");
 	uart_put_hex(exit_reason, 8);
 	uart_puts("\n");
+
 	p_pwr_op->exit_reason = exit_reason;
 	set_wakeup_method(exit_reason);
-	p_pwr_op->power_on_at_24M();
-	p_pwr_op->power_on_at_clk81();
+
+	if (p_pwr_op->power_on_at_24M)
+		p_pwr_op->power_on_at_24M();
+
+	if (p_pwr_op->power_on_at_clk81)
+		p_pwr_op->power_on_at_clk81();
 }
