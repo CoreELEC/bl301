@@ -2,6 +2,10 @@ config GENERIC_GX
 	bool "Support Generic gxl board"
 	default n
 
+config GENERIC_P241_P281
+	bool "Support Generic gxl p241/p281 board"
+	default n
+
 config GENERIC_G12B
 	bool "Support Generic g12b board"
 	default n
@@ -25,6 +29,10 @@ config KHADAS_VIM3L
 
 if GENERIC_GX
 source "board/generic/gxl/Kconfig"
+endif
+
+if GENERIC_P241_P281
+source "board/generic/gxl_p241_p281/Kconfig"
 endif
 
 if GENERIC_G12B
