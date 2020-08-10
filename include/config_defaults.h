@@ -38,10 +38,12 @@
  * user config.ini key value: unsigned int
 */
 struct __attribute__ ((aligned (4))) config_value_uint {
+  // first unique ID of the variable as hash of the ID string
+  unsigned int config_id_a;
   // default value of variable
   unsigned int val;
-  // unique ID of the variable as hash of the ID string
-  unsigned int config_id;
+  // second unique ID of the variable as hash of the ID string
+  unsigned int config_id_b;
 };
 
 /*
@@ -49,10 +51,12 @@ struct __attribute__ ((aligned (4))) config_value_uint {
  * user config.ini key value: char[14]
 */
 struct __attribute__ ((aligned (4))) config_value_char14 {
+  // first unique ID of the variable as hash of the ID string
+  unsigned int config_id_a;
   // default value of variable
   char val[14];
-  // unique ID of the variable as hash of the ID string
-  unsigned int config_id;
+  // second unique ID of the variable as hash of the ID string
+  unsigned int config_id_b;
 };
 
 #endif
