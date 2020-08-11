@@ -75,7 +75,7 @@ all : clean generate-hash $(obj)/bl301.out $(obj)/bl301.bin
 generate-hash:
 	$(Q)rm -rf coreelec_config.h
 	$(Q)cat coreelec_config.c | \
-		awk -F'[(),]' '/.config_id_[ab]\s*=\s*HASH/ {printf("%s\n", $$2)}' | \
+		awk -F'[(),]' '/.config_id_a\s*=\s*HASH/ {printf("%s\n", $$2)}' | \
 		while read str; do echo -n $$str | python -c 'import sys; import zlib; \
 		str=sys.stdin.read(); \
 		print("#define HASHSTR_%s 0x%08x" % (str,zlib.crc32(str)%(1<<32)))' \
