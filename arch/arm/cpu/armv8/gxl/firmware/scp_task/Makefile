@@ -79,7 +79,7 @@ generate-hash:
 		awk -F'[(),]' '/.config_id_a\s*=\s*HASH/ {printf("%s\n", $$2)}' | \
 		while read str; do echo -n $$str | python -c 'import sys; import zlib; \
 		str=sys.stdin.read(); \
-		print("#define HASHSTR_%s 0x%08x" % (str,zlib.crc32(str)%(1<<32)))' \
+		print("#define HASHSTR_%s 0x%08x" % (str,zlib.crc32(str.encode())%(1<<32)))' \
 		>> coreelec_config.h; done
 
 $(obj)/bl301.bin: $(obj)/bl301.out
