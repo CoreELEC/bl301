@@ -27,6 +27,10 @@ config KHADAS_VIM3L
 	bool "Support Khadas VIM3L board"
 	default n
 
+config BANANAPI_M5
+	bool "Support Bananapi M5 board"
+	default n
+
 if GENERIC_GX
 source "board/generic/gxl/Kconfig"
 endif
@@ -65,4 +69,11 @@ source "board/khadas/kvim3l/Kconfig"
 
 config SYS_CONFIG_NAME
 	default "kvim3l"
+endif
+
+if BANANAPI_M5
+source "board/bananapi/m5/Kconfig"
+
+config SYS_CONFIG_NAME
+	default "bananapi_m5"
 endif
