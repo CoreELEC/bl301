@@ -1,0 +1,15 @@
+config SYS_CPU
+	string
+	default "armv8"
+
+config SYS_BOARD
+	string
+	default "m5"
+
+config SYS_VENDOR
+	string
+	default "bananapi"
+
+config SYS_SOC
+	string
+	default "g12a"
