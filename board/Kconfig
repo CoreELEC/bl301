@@ -31,6 +31,10 @@ config BANANAPI_M5
 	bool "Support Bananapi M5 board"
 	default n
 
+config BANANAPI_M2PRO
+	bool "Support Bananapi M2 Pro board"
+	default n
+
 if GENERIC_GX
 source "board/generic/gxl/Kconfig"
 endif
@@ -76,4 +80,11 @@ source "board/bananapi/m5/Kconfig"
 
 config SYS_CONFIG_NAME
 	default "bananapi_m5"
+endif
+
+if BANANAPI_M2PRO
+source "board/bananapi/m2pro/Kconfig"
+
+config SYS_CONFIG_NAME
+	default "bananapi_m2pro"
 endif
