@@ -30,9 +30,9 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-extern struct config_value_uint usr_pwr_key;
-extern struct config_value_uint usr_ir_proto;
-extern struct config_value_uint usr_pwr_key_mask;
+unsigned int enable_wol = 0;
+unsigned int enable_5V_system_power = 0;
+
 extern struct config_value_char14 cec_osd_name;
 
 static void set_vddee_voltage(unsigned int target_voltage)
@@ -71,7 +71,7 @@ static void set_vddee_voltage(unsigned int target_voltage)
 
 static void power_off_at_24M(unsigned int suspend_from)
 {
-	if (!enable_5V_system_power.val)
+	if (!enable_5V_system_power)
 	{
 		/*set gpioH_8 low/high to power off vcc 5v*/
 		writel(readl(PREG_PAD_GPIO3_EN_N) ^ (1 << 8), PREG_PAD_GPIO3_EN_N);
@@ -85,7 +85,7 @@ static void power_off_at_24M(unsigned int suspend_from)
 	writel(readl(AO_RTI_PIN_MUX_REG) & (~(0xf << 16)), AO_RTI_PIN_MUX_REG);
 #endif
 
-	if (!enable_wol.val) {
+	if (!enable_wol) {
 		/*set test_n low to power off vcck_b & vcc 3.3v*/
 		writel(readl(AO_GPIO_O) & (~(1 << 31)), AO_GPIO_O);
 		writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
@@ -101,7 +101,7 @@ void power_on_at_24M(unsigned int suspend_from)
 	/*step up ee voltage*/
 	set_vddee_voltage(CONFIG_VDDEE_INIT_VOLTAGE);
 
-	if (!enable_wol.val) {
+	if (!enable_wol) {
 		/*set test_n high to power on vcck_b & vcc 3.3v*/
 		writel(readl(AO_GPIO_O) | (1 << 31), AO_GPIO_O);
 		writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
@@ -117,7 +117,7 @@ void power_on_at_24M(unsigned int suspend_from)
 	_udelay(100);
 #endif
 
-	if (!enable_5V_system_power.val)
+	if (!enable_5V_system_power)
 	{
 		/*set gpioH_8 high/low to power on vcc 5v*/
 		writel(readl(PREG_PAD_GPIO3_EN_N) ^ (1 << 8), PREG_PAD_GPIO3_EN_N);
@@ -169,7 +169,7 @@ static void get_wakeup_source(void *response, unsigned int suspend_from)
 #endif
 
 #ifdef CONFIG_WOL
-	if (enable_wol.val) {
+	if (enable_wol) {
 		gpio = &(p->gpio_info[i]);
 		gpio->wakeup_id = ETH_PHY_GPIO_SRC;
 		gpio->gpio_in_idx = CONFIG_WOL;
@@ -195,11 +195,11 @@ static unsigned int detect_key(unsigned int suspend_from)
 	unsigned int is_gpiokey = 0;
 #endif
 
-	dbg_print("CoreELEC ir_pwr_key      = ", usr_pwr_key.val);
-	dbg_print("CoreELEC usr_ir_proto    = ", usr_ir_proto.val);
-	dbg_print("CoreELEC ir_pwr_key_mask = ", usr_pwr_key_mask.val);
-	dbg_print("CoreELEC system_power    = ", enable_5V_system_power.val);
-	dbg_print("CoreELEC wake_on_lan     = ", enable_wol.val);
+	dbg_print("CoreELEC ir_pwr_key      = ", usr_pwr_key);
+	dbg_print("CoreELEC usr_ir_proto    = ", usr_ir_proto);
+	dbg_print("CoreELEC ir_pwr_key_mask = ", usr_pwr_key_mask);
+	dbg_print("CoreELEC system_power    = ", enable_5V_system_power);
+	dbg_print("CoreELEC wake_on_lan     = ", enable_wol);
 	dbg_prints("CoreELEC cec_osd_name    = ");
 	dbg_prints(cec_osd_name.val);
 	dbg_prints("\n");
@@ -240,7 +240,7 @@ static unsigned int detect_key(unsigned int suspend_from)
 		}
 
 #if defined(CONFIG_WOL) || defined(CONFIG_BT_WAKEUP)
-		if (enable_wol.val && (irq[IRQ_GPIO1] == CONFIG_WOL_IRQ)) {
+		if (enable_wol && (irq[IRQ_GPIO1] == CONFIG_WOL_IRQ)) {
 			irq[IRQ_GPIO1] = 0xFFFFFFFF;
 #ifdef CONFIG_WOL
 			if (!(readl(PREG_PAD_GPIO4_I) & (0x01 << CONFIG_WOL))

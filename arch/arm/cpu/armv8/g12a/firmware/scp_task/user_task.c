@@ -29,6 +29,14 @@
 #define TASK_ID_HIGH_MB	4
 #define TASK_ID_SECURE_MB  5
 
+extern unsigned int usr_pwr_key;
+extern unsigned int usr_pwr_key_mask;
+extern unsigned int usr_ir_proto;
+#if defined(CONFIG_WOL) || defined(CONFIG_BT_WAKEUP)
+extern unsigned int enable_wol;
+#endif
+extern unsigned int enable_5V_system_power;
+
 enum scpi_client_id {
 	SCPI_CL_NONE,
 	SCPI_CL_CLOCKS,
@@ -36,6 +44,10 @@ enum scpi_client_id {
 	SCPI_CL_POWER,
 	SCPI_CL_THERMAL,
 	SCPI_CL_REMOTE,
+	SCPI_CL_WOL = 100,
+	SCPI_CL_IRPROTO,
+	SCPI_CL_REMOTE_MASK,
+	SCPI_CL_5V_SYSTEM_POWER,
 	SCPI_MAX,
 };
 
@@ -147,7 +159,6 @@ void high_task(void)
 
 void process_low_task(unsigned command)
 {
-#if 0
 	unsigned *pcommand =
 	    (unsigned *)(&(low_task_share_mem[TASK_COMMAND_OFFSET]));
 	/*unsigned *response =
@@ -156,10 +167,23 @@ void process_low_task(unsigned command)
 	if ((command & 0xffff) == LOW_TASK_USR_DATA) {/*0-15bit: comd; 16-31bit: client_id*/
 		if ((command >> 16) == SCPI_CL_REMOTE) {
 			usr_pwr_key = *(pcommand + 2);/*tx_size locates at *(pcommand + 1)*/
-			dbg_print("pwr_key=",usr_pwr_key);
+			dbg_print("CoreELEC pwr_key=", usr_pwr_key);
+		} else if ((command >> 16) == SCPI_CL_IRPROTO) {
+			usr_ir_proto = *(pcommand + 2);
+			dbg_print("CoreELEC usr_ir_proto = ", usr_ir_proto);
+		} else if ((command >> 16) == SCPI_CL_REMOTE_MASK) {
+			usr_pwr_key_mask = *(pcommand + 2);
+			dbg_print("CoreELEC pwr_key_mask = ", usr_pwr_key_mask);
+#if defined(CONFIG_WOL) || defined(CONFIG_BT_WAKEUP)
+		} else if ((command >> 16) == SCPI_CL_WOL) {
+			enable_wol = *(pcommand + 2);
+			dbg_print("CoreELEC wake-on-lan = ", enable_wol);
+#endif
+		} else if ((command >> 16) == SCPI_CL_5V_SYSTEM_POWER) {
+			enable_5V_system_power = *(pcommand + 2);
+			dbg_print("CoreELEC system power = ", enable_5V_system_power);
 		}
 	}
-#endif
 }
 
 void low_task(void)
