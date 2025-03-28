@@ -29,10 +29,6 @@
 #endif
 #define CONFIG_END 0xffffffff
 
-extern struct config_value_uint usr_pwr_key;
-extern struct config_value_uint usr_ir_proto;
-extern struct config_value_uint usr_pwr_key_mask;
-
 typedef struct reg_remote {
 	int reg;
 	unsigned int val;
@@ -44,6 +40,9 @@ typedef struct remote_pwrkeys {
 }remote_pwrkeys_t;
 
 remote_pwrkeys_t pwr_keys_list;
+unsigned int usr_pwr_key = 0xffffffff;
+unsigned int usr_pwr_key_mask = 0xffffffff;
+unsigned int usr_ir_proto = 0;
 
 //24M
 static const reg_remote RDECODEMODE_NEC[] = {
@@ -363,9 +362,9 @@ static int ir_remote_init_32k_mode(void)
 	//volatile unsigned int status,data_value;
 	int val = readl(AO_RTI_PIN_MUX_REG);
 	writel((val | (1 << 0)), AO_RTI_PIN_MUX_REG);
-	set_remote_mode(usr_ir_proto.val);
+	set_remote_mode(usr_ir_proto);
 	uart_puts("set_remote_mode 0x");
-	uart_put_hex(usr_ir_proto.val, 8);
+	uart_put_hex(usr_ir_proto, 8);
 	uart_puts("\n");
 	//status = readl(AO_MF_IR_DEC_STATUS);
 	readl(AO_MF_IR_DEC_STATUS);
@@ -374,7 +373,7 @@ static int ir_remote_init_32k_mode(void)
 
 #if 0
 	//step 2 : request nec_remote irq  & enable it
-	if (usr_ir_proto.val == 3) {
+	if (usr_ir_proto == 3) {
 		uart_puts("usr_ir_proto 3\n");
 		writel(readl(AO_IR_DEC_REG1)&(~(1<<15)),AO_IR_DEC_REG1);
 	}
@@ -465,10 +464,10 @@ static int remote_detect_key(void)
 		uart_puts("\n");
 
 		for (j = 0; j < keysdat->size; j++) {
-			if ((power_key & usr_pwr_key_mask.val) == (keysdat->pwrkeys[j] & usr_pwr_key_mask.val))
+			if ((power_key & usr_pwr_key_mask) == (keysdat->pwrkeys[j] & usr_pwr_key_mask))
 				return 1;
 		}
-		if ((power_key & usr_pwr_key_mask.val) == (usr_pwr_key.val & usr_pwr_key_mask.val))
+		if ((power_key & usr_pwr_key_mask) == (usr_pwr_key & usr_pwr_key_mask))
 			return 2;
 	}
 
@@ -484,10 +483,10 @@ static int remote_detect_key(void)
 		uart_puts("\n");
 
 		for (j = 0; j < keysdat->size; j++) {
-			if ((power_key & usr_pwr_key_mask.val) == (keysdat->pwrkeys[j] & usr_pwr_key_mask.val))
+			if ((power_key & usr_pwr_key_mask) == (keysdat->pwrkeys[j] & usr_pwr_key_mask))
 				return 1;
 		}
-		if ((power_key & usr_pwr_key_mask.val) == (usr_pwr_key.val & usr_pwr_key_mask.val))
+		if ((power_key & usr_pwr_key_mask) == (usr_pwr_key & usr_pwr_key_mask))
 			return 2;
 	}
 

@@ -57,14 +57,14 @@ static void bananapi_power_off_at_24M(unsigned int suspend_from)
 	//writel(readl(AO_GPIO_O_EN_N) & (~(1 << 6)), AO_GPIO_O_EN_N);
 	//writel(readl(AO_RTI_PIN_MUX_REG) & (~(0xf << 24)), AO_RTI_PIN_MUX_REG);
 
-	if (!enable_5V_system_power.val) {
+	if (!enable_5V_system_power) {
 		/*set gpioH_6 low to power off vcc 5v*/
 		writel(readl(PREG_PAD_GPIO3_O) & (~(1 << 6)), PREG_PAD_GPIO3_O);
 		writel(readl(PREG_PAD_GPIO3_EN_N) & (~(1 << 6)), PREG_PAD_GPIO3_EN_N);
 		writel(readl(PERIPHS_PIN_MUX_B) & (~(0xf << 24)), PERIPHS_PIN_MUX_B);
 	}
 
-	if (!enable_wol.val) {
+	if (!enable_wol) {
 		/*set test_n low to power off vcck_b & vcc 3.3v*/
 		writel(readl(AO_GPIO_O) & (~(1 << 31)), AO_GPIO_O);
 		writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
@@ -94,7 +94,7 @@ static void bananapi_power_on_at_24M(unsigned int suspend_from)
 	//writel(readl(AO_GPIO_O_EN_N) & (~(1 << 6)), AO_GPIO_O_EN_N);
 	//writel(readl(AO_RTI_PIN_MUX_REG) & (~(0xf << 24)), AO_RTI_PIN_MUX_REG);
 
-	if (!enable_wol.val) {
+	if (!enable_wol) {
 		/*set test_n high to power on vcck_b & vcc 3.3v*/
 		writel(readl(AO_GPIO_O) | (1 << 31), AO_GPIO_O);
 		writel(readl(AO_GPIO_O_EN_N) & (~(1 << 31)), AO_GPIO_O_EN_N);
@@ -102,7 +102,7 @@ static void bananapi_power_on_at_24M(unsigned int suspend_from)
 		_udelay(100);
 	}
 
-	if (!enable_5V_system_power.val) {
+	if (!enable_5V_system_power) {
 		/*set gpioH_6 high to power on vcc 5v*/
 		writel(readl(PREG_PAD_GPIO3_O) | (1 << 6), PREG_PAD_GPIO3_O);
 		writel(readl(PREG_PAD_GPIO3_EN_N) & (~(1 << 6)), PREG_PAD_GPIO3_EN_N);
@@ -159,7 +159,7 @@ static unsigned int bananapi_detect_key(unsigned int suspend_from)
 		}
 
 #if defined(CONFIG_WOL) || defined(CONFIG_BT_WAKEUP)
-		if (enable_wol.val && (irq[IRQ_GPIO1] == CONFIG_WOL_IRQ)) {
+		if (enable_wol && (irq[IRQ_GPIO1] == CONFIG_WOL_IRQ)) {
 			irq[IRQ_GPIO1] = 0xFFFFFFFF;
 #ifdef CONFIG_WOL
 			if (!(readl(PREG_PAD_GPIO4_I) & (0x01 << CONFIG_WOL))
